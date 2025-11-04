@@ -1,0 +1,25 @@
+function doGet(e) {
+  
+  const hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Hoja 1"); 
+
+  
+  if (!e || !e.parameter.sensor) {
+    return ContentService.createTextOutput("No se recibieron datos");
+  }
+
+  
+  if (e.parameter.sensor == "1") {
+    const fecha = new Date();
+
+    
+    const hora = Utilities.formatDate(fecha, "America/Bogota", "HH:mm:ss");
+    const dia = Utilities.formatDate(fecha, "America/Bogota", "dd/MM/yyyy");
+    const mensaje = "VIBRACIÓN DETECTADA";
+
+    
+    hoja.appendRow([hora, dia, mensaje]);
+  }
+
+  
+  return ContentService.createTextOutput("OK");
+}
