@@ -56,7 +56,7 @@ void loop() {
       Blynk.virtualWrite(V1, 0);
       ledcWriteTone(BUZZER_PIN, 0);
       HTTPClient http;
-      http.begin("https://script.google.com/macros/s/AKfycbwP8p5qDid4zmRlydOh7qiqIofaEhgV7qB9o32f7zN8huH-CK48-4fgXtfFf-6tW7I/exec?sensor=1");
+      http.begin("https://script.google.com/macros/s/AKfycbxphpajDgT76T1mXQvM3xlPY7kqxDib5-OKD1Z0WrA_r1OmwmAPlqGax17o_-CIaYiy/exec?sensor=1");
       http.GET();
       http.end();
     } else {

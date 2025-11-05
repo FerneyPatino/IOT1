@@ -1,25 +1,44 @@
 function doGet(e) {
-  
-  const hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Hoja 1"); 
-
-  
-  if (!e || !e.parameter.sensor) {
-    return ContentService.createTextOutput("No se recibieron datos");
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Hoja 1");
+  var sensor = e.parameter.sensor;
+  if (sensor == "1") {
+    var now = new Date();
+    var hora = Utilities.formatDate(now, Session.getScriptTimeZone(), "HH:mm:ss");
+    var fecha = Utilities.formatDate(now, Session.getScriptTimeZone(), "dd/MM/yyyy");
+    var lastRow = sheet.getLastRow() + 1;
+    sheet.getRange(lastRow, 1).setValue(hora);
+    sheet.getRange(lastRow, 2).setValue(fecha);
+    sheet.getRange(lastRow, 3).setValue("VIBRACIÓN DETECTADA");
+    var totalAlertas = lastRow - 1;
+    sheet.getRange("K1").setValue(totalAlertas);
+    if (totalAlertas > 0) {
+      var primeraHora = sheet.getRange(2, 1).getDisplayValue();
+      var primeraFecha = sheet.getRange(2, 2).getDisplayValue();
+      var ultimaHora = hora;
+      var ultimaFecha = fecha;
+      function parseDate(fechaStr, horaStr) {
+        var f = fechaStr.split('/');
+        var h = horaStr.split(':');
+        var d = parseInt(f[0], 10);
+        var m = parseInt(f[1], 10) - 1;
+        var y = parseInt(f[2], 10);
+        var hh = parseInt(h[0], 10);
+        var mm = parseInt(h[1], 10);
+        var ss = parseInt(h[2] || "0", 10);
+        return new Date(y, m, d, hh, mm, ss);
+      }
+      var primeraDate = parseDate(primeraFecha, primeraHora);
+      var ultimaDate = parseDate(ultimaFecha, ultimaHora);
+      var diferenciaMin = Math.round((ultimaDate - primeraDate) / 60000);
+      if (isNaN(diferenciaMin) || diferenciaMin < 0) diferenciaMin = 0;
+      sheet.getRange("J1").setValue(diferenciaMin + " min");
+      var rango = 'rango de tiempo de los datos entre ' + primeraHora + ' del ' + primeraFecha + ' hasta las ' + ultimaHora + ' del ' + ultimaFecha;
+      sheet.getRange("L1").setValue(rango);
+    } else {
+      sheet.getRange("J1").setValue("0 min");
+      sheet.getRange("L1").setValue('rango de tiempo de los datos entre ' + hora + ' del ' + fecha + ' hasta las ' + hora + ' del ' + fecha);
+    }
+    return ContentService.createTextOutput("OK");
   }
-
-  
-  if (e.parameter.sensor == "1") {
-    const fecha = new Date();
-
-    
-    const hora = Utilities.formatDate(fecha, "America/Bogota", "HH:mm:ss");
-    const dia = Utilities.formatDate(fecha, "America/Bogota", "dd/MM/yyyy");
-    const mensaje = "VIBRACIÓN DETECTADA";
-
-    
-    hoja.appendRow([hora, dia, mensaje]);
-  }
-
-  
-  return ContentService.createTextOutput("OK");
+  return ContentService.createTextOutput("NO DATA");
 }
